@@ -19,7 +19,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = ['nickname', 'email', 'name', 'password']
-        fields = ['user_id','login_id', 'password', 'user_nickname', 'current_address', 'payment_method', 'user_phone', 'user_allergy', 'token']
+        fields = [
+            'user_id',
+            'login_id', 
+            'password', 
+            'user_nickname', 
+            'current_address', 
+            'payment_method', 
+            'user_phone', 
+            'user_allergy', 
+            'token']
 
     def create(self, validated_data):
         # user = User.objects.create_user(
@@ -84,3 +93,42 @@ class LoginSerializer(serializers.Serializer):
             'login_id': user.login_id,
             'last_login': user.last_login
         }
+
+#사용자 정보(내 정보) 확인 및 업데이트할 때 사용할 serializer
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=200,
+        min_length=8,
+        write_only=True #쓰기 옵션만 활성화
+    )
+    
+    class Meta:
+        model = User
+        fields = [
+            'user_id',
+            'login_id', 
+            'password', 
+            'user_nickname', 
+            'current_address', 
+            'payment_method', 
+            'user_phone', 
+            'user_allergy', 
+            'token'
+        ]
+    
+        read_only_fields = ('token', )
+        
+    # 사용자의 정보를 업데이트 할 때 실행
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None) #password는 setattr로 변경하면XXX
+
+        for (key, value) in validated_data.items():
+            #password를 제외한 다른 key들의 value 값으로 현재 'User'의 속성값을 바꾸기
+            setattr(instance, key, value)
+
+        if password is not None:
+            instance.set_password(password) #빼놓은 password를 수정한 부분이 있다면 '.set_password( )' 메소드 이용해 password 새롭게 설정함
+
+        #변경된 instance의 정보를 저장 but DB에는 XX -> DB에 직접 저장하는 역할은 view의 serializer.save()에서 진행
+        instance.save()
+        return instance
