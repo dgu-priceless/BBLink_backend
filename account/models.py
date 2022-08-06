@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.validators import RegexValidator 
 
 # Create your models here.
 class UserManager(BaseUserManager):
     # 일반 user 생성
     def create_user(self, login_id, user_nickname, user_phone, current_address, payment_method, user_allergy, login_password=None):
+        print(login_id)
         if not login_id:
             raise ValueError('must have user login_id')
         if not user_nickname:
@@ -44,13 +46,16 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
     login_id = models.CharField(default='', max_length=45, null=False, blank=False, unique=True)
-    user_phone = models.CharField(default='', max_length=11, null=False, blank=False)
+    #휴대폰번호 유효성 검사
+    phoneNumberRegex = RegexValidator(regex = r'^01([0|1|6|7|8|9]?)-?([0-9]{3,4})-?([0-9]{4})$')
+    user_phone = models.CharField(default='', max_length=11, null=False, blank=False, unique=True, validators = [phoneNumberRegex])
+    
     current_address = models.CharField(default='', max_length=255, null=False, blank=False)
     payment_method = models.CharField(default='', max_length=255, null=False, blank=False)
     user_allergy = models.CharField(default='', max_length=255, blank=True, null=True)
     user_nickname = models.CharField(default='', max_length=45, unique=True, null=False, blank=False)
     #추가
-    login_password = models.CharField(default='', max_length=45, null=False)
+    login_password = models.CharField(default='', max_length=200, null=False)
 
     # email = models.EmailField(default='', max_length=100, null=False, blank=False, unique=True)
     # nickname = models.CharField(default='', max_length=100, null=False, blank=False, unique=True)
