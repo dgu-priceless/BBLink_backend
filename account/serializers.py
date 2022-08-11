@@ -45,7 +45,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         #     user_phone = validated_data['user_phone'],
         #     user_allergy = validated_data['user_allergy']
         # )
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+        return user
+       
 
 
 class LoginSerializer(serializers.Serializer):

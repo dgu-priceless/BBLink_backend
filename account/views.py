@@ -12,7 +12,9 @@ from rest_framework import generics
 from .renderers import UserJSONRenderer
 from rest_framework.generics import RetrieveUpdateAPIView
 
+
 # 회원가입
+
 class UserCreate(generics.CreateAPIView):
     permission_classes = (AllowAny,) #누가 이 view를 사용할 수 있는지에 대한 범위를 결정
     serializer_class = RegistrationSerializer
